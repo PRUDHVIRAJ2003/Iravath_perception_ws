@@ -4,17 +4,17 @@ import numpy as np
 
 class MaskRCNN:
     def __init__(self):
-        # Loading Mask RCNN
+
         self.net = cv2.dnn.readNetFromTensorflow("dnn/frozen_inference_graph_coco.pb",
                                             "dnn/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt")
         self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 
-        # Generate random colors
+
         np.random.seed(2)
         self.colors = np.random.randint(0, 255, (90, 3))
 
-        # Conf threshold
+
         self.detection_threshold = 0.7
         self.mask_threshold = 0.3
 
@@ -29,7 +29,7 @@ class MaskRCNN:
         self.obj_centers = []
         self.obj_contours = []
 
-        # Distances
+
         self.distances = []
 
 
@@ -39,11 +39,11 @@ class MaskRCNN:
 
         boxes, masks = self.net.forward(["detection_out_final", "detection_masks"])
 
-        # Detect objects
+
         frame_height, frame_width, _ = bgr_frame.shape
         detection_count = boxes.shape[2]
 
-        # Object Boxes
+
         self.obj_boxes = []
         self.obj_classes = []
         self.obj_centers = []
@@ -57,7 +57,7 @@ class MaskRCNN:
             if score < self.detection_threshold:
                 continue
 
-            # Get box Coordinates
+
             x = int(box[3] * frame_width)
             y = int(box[4] * frame_height)
             x2 = int(box[5] * frame_width)
@@ -68,12 +68,11 @@ class MaskRCNN:
             cy = (y + y2) // 2
             self.obj_centers.append((cx, cy))
 
-            # append class
+
             self.obj_classes.append(class_id)
 
-            # Contours
-            # Get mask coordinates
-            # Get the mask
+
+
             mask = masks[i, int(class_id)]
             roi_height, roi_width = y2 - y, x2 - x
             mask = cv2.resize(mask, (roi_width, roi_height))
@@ -84,7 +83,7 @@ class MaskRCNN:
         return self.obj_boxes, self.obj_classes, self.obj_contours, self.obj_centers
 
     def draw_object_mask(self, bgr_frame):
-        # loop through the detection
+
         for box, class_id, contours in zip(self.obj_boxes, self.obj_classes, self.obj_contours):
             x, y, x2, y2 = box
             roi = bgr_frame[y: y2, x: x2]
@@ -94,7 +93,7 @@ class MaskRCNN:
             roi_copy = np.zeros_like(roi)
 
             for cnt in contours:
-                # cv2.f(roi, [cnt], (int(color[0]), int(color[1]), int(color[2])))
+
                 cv2.drawContours(roi, [cnt], - 1, (int(color[0]), int(color[1]), int(color[2])), 3)
                 cv2.fillPoly(roi_copy, [cnt], (int(color[0]), int(color[1]), int(color[2])))
                 roi = cv2.addWeighted(roi, 1, roi_copy, 0.5, 0.0)
