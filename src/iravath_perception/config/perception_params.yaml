@@ -1,0 +1,23 @@
+realsense_camera_node:
+  ros__parameters:
+    width: 1280
+    height: 720
+    fps: 30
+    enable_depth: true
+    enable_color: true
+
+object_detection_node:
+  ros__parameters:
+    detection_threshold: 0.7
+    mask_threshold: 0.3
+    model_path: "dnn/frozen_inference_graph_coco.pb"
+    config_path: "dnn/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt"
+    classes_path: "dnn/classes.txt"
+    use_cuda: false
+
+yolo_detection_node:
+  ros__parameters:
+    confidence_threshold: 0.5
+    model_name: "yolov5s"
+    device: "cpu"  # "cpu" or "cuda"
+    focal_length: 600.0
